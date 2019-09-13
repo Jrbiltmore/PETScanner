@@ -114,6 +114,205 @@ def main():
 
         model.train()
 
+    with open(plotsave+'5epochtrain.pkl', 'wb') as f:
+        pickle.dump(train_loss, f)
+    with open(plotsave+'5epochvalidation.pkl', 'wb') as f:
+        pickle.dump(validation_loss, f)
+    torch.save(model, plotsave + 'Model20Epochs')
+
+    train_x, train_y = [], []
+    # print(validation[0][0], validation[0][1])
+    for _ in train:
+        train_x.append(_[0])
+        train_y.append(_[1])
+
+
+    validation_x, validation_y = [], []
+    #print(validation[0][0], validation[0][1])
+    for _ in validation:
+        validation_x.append(_[0])
+        validation_y.append(_[1])
+
+    print("Lengths of train and validation sets: "+str(len(train_x))+" "+str(len(validation_x)))
+
+    # 100% images in the validation set are in the train set
+    validation_1_x = train_x[:len(validation_x)]
+    validation_1_y = train_y[:len(validation_y)]
+    # 50% images in the validation set are in the train set
+    validation_2_x = train_x[:len(validation_x)//2]+validation_x[:len(validation_x)//2]
+    validation_2_y = train_y[:len(validation_y)//2]+validation_y[:len(validation_y)//2]
+    # 0% images in the validation set are in the train set
+    validation_3_x = validation_x
+    validation_3_y = validation_y
+
+    validation_1x, validation_1y, validation_1z = [], [], []
+    for _ in validation_1_y:
+        validation_1x.append(_[0])
+        validation_1y.append(_[1])
+        validation_1z.append(_[2])
+
+    validation_2x, validation_2y, validation_2z = [], [], []
+    for _ in validation_2_y:
+        validation_2x.append(_[0])
+        validation_2y.append(_[1])
+        validation_2z.append(_[2])
+
+    validation_3x, validation_3y, validation_3z = [], [], []
+    for _ in validation_3_y:
+        validation_3x.append(_[0])
+        validation_3y.append(_[1])
+        validation_3z.append(_[2])
+
+    trainx, trainy, trainz = [], [], []
+    for _ in train_y:
+        trainx.append(_[0])
+        trainy.append(_[1])
+        trainz.append(_[2])
+    trainx = np.asarray(trainx)
+    trainy = np.asarray(trainy)
+    trainz = np.asarray(trainz)
+    ax = sns.distplot(trainx)
+    ax.set(title='Distribution of X-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(trainx.mean()) + ' SD=' + str(trainx.std()),
+           ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(trainy)
+    ax.set(title='Distribution of Y-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(trainy.mean()) + ' SD=' + str(trainy.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(trainz)
+    ax.set(title='Distribution of Z-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(trainz.mean()) + ' SD=' + str(trainz.std()),
+           ylabel='Frequency')
+    plt.show()
+
+
+
+    validation_3x = np.asarray(validation_3x)
+    validation_3y = np.asarray(validation_3y)
+    validation_3z = np.asarray(validation_3z)
+    ax = sns.distplot(validation_3x)
+    ax.set(title='Distribution of X-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(validation_3x.mean()) + ' SD=' + str(validation_3x.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(validation_3y)
+    ax.set(title='Distribution of Y-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(validation_3y.mean()) + ' SD=' + str(validation_3y.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(validation_3z)
+    ax.set(title='Distribution of Z-Coordinate')
+    ax.set(xlabel='Normal Distribution M=' + str(validation_3z.mean()) + ' SD=' + str(validation_3z.std()), ylabel='Frequency')
+    plt.show()
+
+    print("*********Validation 3 test case results*********")
+    validation_3_x = np.asarray(validation_3_x)
+    validation_3_y = np.asarray(validation_3_y)
+    validation_3_x = np.asarray(validation_3_x)
+    validation_3_x = np.pad(validation_3_x, ((0, 0), (0, 0), (0, 3)), mode='constant')
+    validation_3_x = torch.tensor(validation_3_x, dtype=torch.float32)
+    validation_3_y = torch.tensor(validation_3_y, dtype=torch.float32)
+    model = torch.load(plotsave + 'Model')
+
+    validation_predictions = model(validation_3_x)
+    # print("Predicted Validation", validation_predictions)
+    # print("Actual Validation", validation_y)
+    criterion = torch.nn.MSELoss(reduction='mean')
+    loss = criterion(validation_predictions, validation_3_y)
+    print("RMSE of the validation set: ", math.sqrt(loss))
+    errors = abs(validation_predictions - validation_3_y)
+
+
+    total_errors = []
+    for _ in errors:
+        total_errors.append(math.sqrt(sum([_[0]**2, _[1]**2, _[2]**2])))
+    #print("total errors = ", type(total_errors))
+    total_errors = torch.tensor(total_errors)
+    total_errors = total_errors.cpu()
+    total_errors = total_errors.detach().numpy()
+
+
+    # print("Mean of the errors:", errors.mean(0))
+    # print("Standard Deviation of the errors:", errors.std(0))
+    errors = errors.cpu()
+    errors = errors.detach().numpy()
+
+    errors_x, errors_y, errors_z = [], [], []
+    for _ in errors:
+        errors_x.append(_[0])
+        errors_y.append(_[1])
+        errors_z.append(_[2])
+
+
+    errors_x = torch.tensor(errors_x, dtype=torch.float32)
+    errors_y = torch.tensor(errors_y, dtype=torch.float32)
+    errors_z = torch.tensor(errors_z, dtype=torch.float32)
+    errors_x = errors_x.cpu()
+    errors_y = errors_y.cpu()
+    errors_z = errors_z.cpu()
+
+    print("The mean errors on all coordinates: ", errors.mean(0))
+    print("The standard deviations on all coordinates: ", errors.std(0))
+
+
+
+    # with open(plotsave+'TrainLoss.pkl', 'rb') as f:
+    #     train_loss_values = pickle.load(f)
+    # with open(plotsave+'ValidationLoss.pkl', 'rb') as f:
+    #     validation_loss_values = pickle.load(f)
+
+    # validation_loss_values = torch.tensor(validation_loss_values, dtype=torch.float32)
+    # train_loss_values = torch.tensor(train_loss_values, dtype=torch.float32)
+
+
+    # print("Mean of RMSE of the total validation error: ", validation_loss_values.mean())
+    # print("Standard Deviation of the total validation error: ", validation_loss_values.std())
+    print("****Total Error Stats****")
+    print("Mean of the total error: ", total_errors.mean())
+    print("Standard Deviation of the total error: ", total_errors.std())
+    print("****X-Coordinate Stats****")
+    print("Mean of the error in x-coordinate: ", errors_x.mean())
+    print("Standard Deviation of the error in x-coordinate: ", errors_x.std())
+    print("****Y-Coordinate Stats****")
+    print("Mean of the error in y-coordinate: ", errors_y.mean())
+    print("Standard Deviation of the error in y-coordinate: ", errors_y.std())
+    print("****Z-Coordinate Stats****")
+    print("Mean of the error in z-coordinate: ", errors_z.mean())
+    print("Standard Deviation of the error in z-coordinate: ", errors_z.std())
+
+    #print("Total error distribution")
+    ax = sns.distplot(total_errors)
+    ax.set(title='Distribution of Total Error')
+    ax.set(xlabel='Normal Distribution M=' + str(total_errors.mean()) + ' SD=' + str(total_errors.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(errors_x)
+    ax.set(title='Distribution of X-Coordinate Errors')
+    ax.set(xlabel='Normal Distribution M=' + str(errors_x.mean()) + ' SD=' + str(errors_x.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(errors_y)
+    ax.set(title='Distribution of Y-Coordinate Errors')
+    ax.set(xlabel='Normal Distribution M=' + str(errors_y.mean()) + ' SD=' + str(errors_y.std()), ylabel='Frequency')
+    plt.show()
+
+    ax = sns.distplot(errors_z)
+    ax.set(title='Distribution of Z-Coordinate Errors')
+    ax.set(xlabel='Normal Distribution M=' + str(errors_z.mean()) + ' SD=' + str(errors_z.std()), ylabel='Frequency')
+    plt.show()
+
+
+
+
+
+
+
+
+
+
     #print("Weight parameters ",list(model.parameters()))
     #
     # file_train_loss = open(plotsave+'Train_Loss', 'wb')
