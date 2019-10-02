@@ -8,6 +8,7 @@ import numpy as np
 from torch.nn import functional as F
 from torch import nn
 import random
+import seaborn as sns
 
 
 device = torch.cuda.current_device()
@@ -47,7 +48,7 @@ class Blur(nn.Module):
 class FromGrayScale(nn.Module):
     def __init__(self, channels, outputs):
         super(FromGrayScale, self).__init__()
-        self.from_grayscale = ln.Conv2d(channels, outputs, 1, 1, 0)
+        self.from_grayscale = nn.Conv2d(channels, outputs, 1, 1, 0)
 
     def forward(self, x):
         x = self.from_grayscale(x)
@@ -68,9 +69,9 @@ class Block(nn.Module):
             self.bias_1.zero_()
             self.bias_2.zero_()
         if last:
-            self.dense = ln.Linear(inputs * 4 * 4, outputs)
+            self.dense = nn.Linear(inputs * 4 * 4, outputs)
         else:
-            self.conv_2 = ln.Conv2d(inputs, outputs, 3, 1, 1, bias=False)
+            self.conv_2 = nn.Conv2d(inputs, outputs, 3, 1, 1, bias=False)
         self.bn1 = nn.BatchNorm2d(inputs)
         self.bn2 = nn.BatchNorm2d(outputs)
 
