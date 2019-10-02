@@ -9,18 +9,18 @@ import copy
 import os
 
 
+def create_train_and_validation(data, percentage_shared):
+    pass
+
 def main():
     location = 'Data/emission_coordinates.xlsx'
-
     wb = xlrd.open_workbook(location)
     sheet = wb.sheet_by_index(0)
     emission_points = []
     for _ in range(1, 822):
         emission_points.append(sheet.row_values(_))
-    #print("emission points before shuffling: ", emission_points)
+
     random.shuffle(emission_points)
-    #print("emission points after shuffling: ", emission_points)
-    # print(sheet.cell_value(0, 0))
     position_list = []
     count = 0
     for img in glob.glob('Data/tiffs/*.tiff'):
@@ -33,8 +33,6 @@ def main():
     position_list = list(set(position_list))
     position_list.sort()
     # position_list has all the positions in the tiffs with index number+1 as the row in the excel sheet
-
-
     emissions_shuffled = copy.deepcopy(position_list)
     random.shuffle(emissions_shuffled)
     validation1 = emissions_shuffled[:400]
@@ -124,39 +122,11 @@ def main():
                 emission_points[i][1],
                 emission_points[i][2]]))
 
-    # print(len(output_Y))
-    #
-    # print("input vectors length", len(input_X))
-    #
-    # train_set_size = int(0.8 * len(input_X))
-    #
-    # all_data = [(x, y) for x, y in zip(input_X, output_Y)]
+
 
     np.random.seed(1)
 
-    #random.shuffle(all_data)
 
-    #input_X = [x[0] for x in all_data]
-    #output_Y = [x[1] for x in all_data]
-
-    #train_X = input_X[:train_set_size]
-    #train_Y = output_Y[:train_set_size]
-
-    #validation_X = input_X[train_set_size:]
-    #validation_Y = output_Y[train_set_size:]
-
-    # input1_X = []
-    # output1_Y = []
-    # input2_X = []
-    # output2_Y = []
-    # input3_X = []
-    # output3_Y = []
-    # validation1_input_X = []
-    # validation1_output_Y = []
-    # validation2_input_X = []
-    # validation2_output_Y = []
-    # validation3_input_X = []
-    # validation3_output_Y = []
     plotsave = 'New_Dataset/Validation_1/'
     try:
         os.makedirs(plotsave)
