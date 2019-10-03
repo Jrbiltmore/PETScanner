@@ -9,20 +9,6 @@ from utils import run
 import os
 
 
-def inference(model, data):
-    model.eval()
-    pred = []
-    with torch.no_grad():
-        batches = dlutils.batch_provider(data, 1024, process)
-
-        for x, y in batches:
-            y_pred = model(x)
-            pred.append(y_pred)
-
-    pred = torch.cat(pred, dim=0)
-    return pred
-
-
 def iteration(logger, train, validation, model, optimizer, criterion, tracker):
     random.shuffle(train)
     batches = dlutils.batch_provider(train, 128, process)
@@ -33,13 +19,11 @@ def iteration(logger, train, validation, model, optimizer, criterion, tracker):
 
         loss = criterion(y_pred, y)
 
-        tracker.update(dict(train_loss=math.sqrt(loss.item())))
+        tracker.update(dict(train_loss=torch.sqrt(loss)))
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-    logger.info('loss: %f' % train_loss)
 
     model.eval()
     with torch.no_grad():
@@ -50,7 +34,7 @@ def iteration(logger, train, validation, model, optimizer, criterion, tracker):
 
             loss = criterion(y_pred, y)
 
-            tracker.update(dict(validation_loss=math.sqrt(loss.item())))
+            tracker.update(dict(validation_loss=torch.sqrt(loss)))
 
 
 def training(cfg, logger):

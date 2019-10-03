@@ -3,13 +3,10 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
-_C.OUTPUT_DIR = "results_1"
+_C.OUTPUT_DIR = "/data/PETScanner/results_1"
 
 _C.DATASET = CN()
-_C.DATASET.TRAIN_X = 'train_X.pkl'
-_C.DATASET.TRAIN_Y = 'train_Y.pkl'
-_C.DATASET.VALIDATION_X = 'validation_X.pkl'
-_C.DATASET.VALIDATION_Y = 'validation_Y.pkl'
+_C.DATASET.PATH = '/data/PETScanner/dataset_1.pkl'
 
 _C.MODEL = CN()
 
@@ -33,17 +30,6 @@ _C.TRAIN.ADAM_BETA_1 = 0.99
 _C.TRAIN.LEARNING_DECAY_RATE = 0.1
 _C.TRAIN.LEARNING_DECAY_STEPS = []
 _C.TRAIN.TRAIN_EPOCHS = 110
-
-_C.TRAIN.ALPHA = 0.15
-_C.TRAIN.M = 0.25
-_C.TRAIN.BETTA = 0.02
-
-_C.TRAIN.LOD_2_BATCH_8GPU = [512, 256, 128,   64,   32,    32]
-_C.TRAIN.LOD_2_BATCH_4GPU = [512, 256, 128,   64,   32,    16]
-_C.TRAIN.LOD_2_BATCH_2GPU = [256, 256, 128,   64,   32,    16]
-_C.TRAIN.LOD_2_BATCH_1GPU = [128, 128, 128,   64,   32,    16]
-
-_C.TRAIN.SNAPSHOT_FREQ = [100, 80, 60, 30, 20, 10, 20, 20, 20]
 
 
 def get_cfg_defaults():

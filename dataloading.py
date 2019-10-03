@@ -13,23 +13,30 @@ def process(batch):
     return x, y
 
 
-def load_data(file_x, file_y):
-    with open(file_x, 'rb') as f:
-        train_X = pickle.load(f)
-    with open(file_y, 'rb') as f:
-        train_Y = pickle.load(f)
-
-    return list(zip(train_X, train_Y))
+def load_data(file):
+    with open(file, 'rb') as f:
+        data = pickle.load(f)
+    return data['train'], data['validation']
 
 
 def get_data(cfg, logger):
-    train = load_data('train_X.pkl', 'train_Y.pkl')
-    validation = load_data('validation_X.pkl', 'validation_Y.pkl')
+    train, validation = load_data(cfg.DATASET.PATH)
+    logger.info("Number of train images: %d" % len(train))
+    logger.info("Number of validation images: %d" % len(validation))
 
-    logger.info("Mean of X %f" % np.asarray([x[0] for x in train]).mean())
-    logger.info("Std of X %f" % np.asarray([x[0] for x in train]).std())
+    properties = dict(
+        x_mean=np.asarray([x[0] for x in train]).mean(),
+        x_std=np.asarray([x[0] for x in train]).std(),
+        y_mean=np.asarray([x[1] for x in train]).mean(axis=0),
+        y_std=np.asarray([x[1] for x in train]).std(axis=0),
+    )
 
-    logger.info("Mean of Y %f" % np.asarray([x[1] for x in train]).mean(axis=0))
-    logger.info("Std of Y %f" % np.asarray([x[1] for x in train]).std(axis=0))
+    logger.info(
+        """\n"""
+        """Mean of X {x_mean}\n"""
+        """Std of X {x_std}\n"""
+        """Mean of Y {y_mean}\n"""
+        """Std of Y {y_std}\n"""
+        .format(**properties))
 
     return train, validation

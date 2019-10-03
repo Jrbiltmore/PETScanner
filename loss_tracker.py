@@ -85,7 +85,7 @@ class LossTracker:
             self.means_over_epochs[key].append(value.mean())
             value.reset()
 
-        with open('log.csv', mode='w') as csv_file:
+        with open(os.path.join(self.output_folder, 'log.csv'), mode='w') as csv_file:
             fieldnames = ['epoch'] + list(self.tracks.keys())
             writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(fieldnames)
