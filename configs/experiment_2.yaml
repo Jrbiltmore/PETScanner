@@ -1,0 +1,5 @@
+DATASET:
+  PATH: /data/PETScanner/dataset_2.pkl
+MODEL_SAVE_FILENAME: model.pkl
+NAME: Validation 2
+OUTPUT_DIR: /data/PETScanner/results_2

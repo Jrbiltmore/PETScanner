@@ -76,10 +76,10 @@ class Block(nn.Module):
 
 
 class StyleGANInspiredNet(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, cfg):
         super(StyleGANInspiredNet, self).__init__()
 
-        inputs = 64
+        inputs = cfg.MODEL.CHANNELS_START
         self.from_grayscale = FromGrayScale(1, inputs)
         self.encode_block: nn.ModuleList[Block] = nn.ModuleList()
 
@@ -91,8 +91,8 @@ class StyleGANInspiredNet(torch.nn.Module):
 
         self.fc2 = nn.Linear(4 * inputs, 3)
 
-        self.y_mean = torch.tensor(np.asarray([3.48624905e+01, - 7.88549283e-01,  1.00120885e-03]), dtype=torch.float32)
-        self.y_std = torch.tensor(np.asarray([1.71504586, 4.66643101, 1.02884424]), dtype=torch.float32)
+        self.y_mean = torch.tensor(np.asarray([3.48605725e+01, -7.84542022e-01, 5.52984166e-04]), dtype=torch.float32)
+        self.y_std = torch.tensor(np.asarray([1.71550884, 4.66580994, 1.02815766]), dtype=torch.float32)
 
     def forward(self, x):
         x -= 10.86
