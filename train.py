@@ -1,6 +1,6 @@
 import torch
 import dlutils
-import random
+import numpy as np
 from net import StyleGANInspiredNet
 from dataloading import process, get_data
 from loss_tracker import LossTracker
@@ -9,7 +9,7 @@ import os
 
 
 def iteration(logger, train, validation, model, optimizer, criterion, tracker):
-    random.shuffle(train)
+    np.random.shuffle(train)
     batches = dlutils.batch_provider(train, 128, process)
 
     model.train()
@@ -37,6 +37,11 @@ def iteration(logger, train, validation, model, optimizer, criterion, tracker):
 
 
 def training(cfg, logger):
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.manual_seed(0)
+    np.random.seed(0)
+
     train, validation = get_data(cfg, logger)
 
     model = StyleGANInspiredNet(cfg).cuda()

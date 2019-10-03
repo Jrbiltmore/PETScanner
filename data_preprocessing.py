@@ -3,7 +3,6 @@ import numpy as np
 from PIL import Image
 import pickle
 from tqdm import tqdm
-import random
 import copy
 import os
 import zipfile
@@ -18,6 +17,8 @@ config = [
 
 
 def main():
+    np.random.seed(0)
+
     data, image_list = read_tiff_data()
 
     emission_points = get_emission_points()
@@ -26,12 +27,14 @@ def main():
         print("\nCreating dataset for config:\n\tsplit: {split}\n\tshared: {shared}\n\tsaving to {output_path}".format(**cfg))
         create_dataset(data, emission_points, image_list, **cfg)
 
+    assert np.random.randint(int(1e18)) == 198733474275057028, "Determinism was broken"
+
 
 def create_dataset(data, emission_points, image_list, shared, split, output_path):
     position_list = get_position_list(image_list)
     emissions_shuffled = copy.deepcopy(position_list)
-    random.shuffle(emissions_shuffled)
-    random.shuffle(image_list)
+    np.random.shuffle(emissions_shuffled)
+    np.random.shuffle(image_list)
     positions_shared, positions_train, position_validation = split_positions(emissions_shuffled, shared, split)
     train_images, validation_images = split_images(image_list, position_list, position_validation, positions_shared,
                                                    positions_train, split)
