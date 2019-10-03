@@ -95,10 +95,10 @@ class StyleGANInspiredNet(torch.nn.Module):
         self.y_std = torch.tensor(np.asarray([1.71550884, 4.66580994, 1.02815766]), dtype=torch.float32)
 
     def forward(self, x):
-        x -= 10.86
-        x /= 27.45
+        x -= 0.004807692307692308
+        x /= 0.011519762343566905
         x = self.from_grayscale(x[:, None])
-        x = F.leaky_relu(x, 0.2)
+        x = F.relu(x)
 
         for i in range(len(self.encode_block)):
             x = self.encode_block[i](x)

@@ -36,8 +36,8 @@ def create_dataset(data, emission_points, image_list, shared, split, output_path
     train_images, validation_images = split_images(image_list, position_list, position_validation, positions_shared,
                                                    positions_train, split)
     validate_split(train_images, validation_images, shared, split)
-    data_train = [(data[image], get_ground_truth(image, position_list, emission_points)) for image in train_images]
-    data_validation = [(data[image], get_ground_truth(image, position_list, emission_points)) for image in
+    data_train = [(normalize(data[image]), get_ground_truth(image, position_list, emission_points)) for image in train_images]
+    data_validation = [(normalize(data[image]), get_ground_truth(image, position_list, emission_points)) for image in
                        validation_images]
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'wb') as f:
@@ -94,6 +94,10 @@ def split_positions(emissions_shuffled, shared, split):
     return set(positions_shared), set(positions_train), set(position_validation)
 
 
+def normalize(x):
+    return x / x.sum()
+
+
 def read_images(archive, image_list):
     return {img: np.asarray(Image.open(archive.open(img))) for img in tqdm(image_list)}
 
@@ -128,8 +132,8 @@ def get_emission_points():
     sheet = wb.sheet_by_index(0)
     emission_points = []
     # position_list has all the positions in the tiffs with index number+1 as the row in the excel sheet
-    for _ in range(1, 822):
-        emission_points.append(sheet.row_values(_))
+    for i in range(1, 822):
+        emission_points.append(sheet.row_values(i - 1))
     return emission_points
 
 

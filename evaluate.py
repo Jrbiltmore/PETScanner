@@ -36,7 +36,7 @@ def evaluate(cfg, logger):
 
     validation1_actual_y = torch.tensor([validation[i][1] for i in range(len(validation))], dtype=torch.float32)
 
-    logger.info("RMSE of the validation set: ", math.sqrt(loss))
+    logger.info("RMSE of the validation set: %f" % math.sqrt(loss))
     errors = abs(validation1_predictions - validation1_actual_y)
 
     total_errors = []
@@ -63,23 +63,23 @@ def evaluate(cfg, logger):
     errors_y = errors_y.cpu()
     errors_z = errors_z.cpu()
 
-    logger.info("The mean errors on all coordinates: ", errors.mean(0))
-    logger.info("The standard deviations on all coordinates: ", errors.std(0))
+    logger.info("The mean errors on all coordinates: %s" % str(errors.mean(0)))
+    logger.info("The standard deviations on all coordinates: %s" % str(errors.std(0)))
 
     logger.info("--------------%s Set Absolute Error Results--------------" % cfg.NAME)
 
     logger.info("****Total Error Stats****")
-    logger.info("Mean of the total error: ", total_errors.mean())
-    logger.info("Standard Deviation of the total error: ", total_errors.std())
+    logger.info("Mean of the total error: %f" % total_errors.mean())
+    logger.info("Standard Deviation of the total error: %f" % total_errors.std())
     logger.info("****X-Coordinate Stats****")
-    logger.info("Mean of the error in x-coordinate: ", errors_x.mean())
-    logger.info("Standard Deviation of the error in x-coordinate: ", errors_x.std())
+    logger.info("Mean of the error in x-coordinate: %f" % errors_x.mean())
+    logger.info("Standard Deviation of the error in x-coordinate: %f" % errors_x.std())
     logger.info("****Y-Coordinate Stats****")
-    logger.info("Mean of the error in y-coordinate: ", errors_y.mean())
-    logger.info("Standard Deviation of the error in y-coordinate: ", errors_y.std())
+    logger.info("Mean of the error in y-coordinate: %f" % errors_y.mean())
+    logger.info("Standard Deviation of the error in y-coordinate: %f" % errors_y.std())
     logger.info("****Z-Coordinate Stats****")
-    logger.info("Mean of the error in z-coordinate: ", errors_z.mean())
-    logger.info("Standard Deviation of the error in z-coordinate: ", errors_z.std())
+    logger.info("Mean of the error in z-coordinate: %f" % errors_z.mean())
+    logger.info("Standard Deviation of the error in z-coordinate: %f" % errors_z.std())
 
     # print("Total error distribution")
     ax = sns.distplot(total_errors)
@@ -133,23 +133,23 @@ def evaluate(cfg, logger):
     errors_y = errors_y.cpu()
     errors_z = errors_z.cpu()
 
-    logger.info("The mean errors on all coordinates: ", errors.mean(0))
-    logger.info("The standard deviations on all coordinates: ", errors.std(0))
+    logger.info("The mean errors on all coordinates: %s" % str(errors.mean(0)))
+    logger.info("The standard deviations on all coordinates: %s" % str(errors.std(0)))
 
     logger.info("--------------Validation %s Set Results--------------" % cfg.NAME)
 
     logger.info("****Total Error Stats****")
-    logger.info("Mean of the total error: ", total_errors.mean())
-    logger.info("Standard Deviation of the total error: ", total_errors.std())
+    logger.info("Mean of the total error: %f" % total_errors.mean())
+    logger.info("Standard Deviation of the total error: %f" % total_errors.std())
     logger.info("****X-Coordinate Stats****")
-    logger.info("Mean of the error in x-coordinate: ", errors_x.mean())
-    logger.info("Standard Deviation of the error in x-coordinate: ", errors_x.std())
+    logger.info("Mean of the error in x-coordinate: %f" % errors_x.mean())
+    logger.info("Standard Deviation of the error in x-coordinate: %f" % errors_x.std())
     logger.info("****Y-Coordinate Stats****")
-    logger.info("Mean of the error in y-coordinate: ", errors_y.mean())
-    logger.info("Standard Deviation of the error in y-coordinate: ", errors_y.std())
+    logger.info("Mean of the error in y-coordinate: %f", errors_y.mean())
+    logger.info("Standard Deviation of the error in y-coordinate: %f" % errors_y.std())
     logger.info("****Z-Coordinate Stats****")
-    logger.info("Mean of the error in z-coordinate: ", errors_z.mean())
-    logger.info("Standard Deviation of the error in z-coordinate: ", errors_z.std())
+    logger.info("Mean of the error in z-coordinate: %f", errors_z.mean())
+    logger.info("Standard Deviation of the error in z-coordinate: %f" % errors_z.std())
 
     # print("Total error distribution")
     ax = sns.distplot(total_errors)
