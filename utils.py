@@ -7,7 +7,7 @@ from defaults import get_cfg_defaults
 
 
 def run(fn):
-    parser = argparse.ArgumentParser(description="Adversarial, hierarchical style VAE")
+    parser = argparse.ArgumentParser(description="PETScanner photon detector training scripts")
     parser.add_argument(
         "--config-file",
         default="configs/experiment_1.yaml",
