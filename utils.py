@@ -10,7 +10,7 @@ def run(fn):
     parser = argparse.ArgumentParser(description="PETScanner photon detector training scripts")
     parser.add_argument(
         "--config-file",
-        default="configs/experiment_1.yaml",
+        default="configs/experiment.yaml",
         metavar="FILE",
         help="path to config file",
         type=str,

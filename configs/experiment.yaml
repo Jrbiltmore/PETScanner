@@ -1,8 +1,8 @@
 DATASET:
-  PATH: /data/PETScanner/dataset_2.pkl
+  PATH: /data/PETScanner/dataset_new.pkl
 MODEL_SAVE_FILENAME: model.pkl
-NAME: Validation 2
-OUTPUT_DIR: /data/PETScanner/results_2
+NAME: Validation 1
+OUTPUT_DIR: /data/PETScanner/results_new
 TRAIN:
   BASE_LEARNING_RATE: 0.0002
   EPOCHS: 150

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 from tqdm import tqdm
+import re
 
 
 def rotate(x, y, a):
@@ -19,9 +20,40 @@ def main():
 
     images = []
 
+    m = r"GEN,MAT1,(-*\d*.\d*)XS,(-*\d*.\d*)XL,(-*\d*.\d*)YS,(-*\d*.\d*)YL,(-*\d*.\d*)ZS,(-*\d*.\d*)ZL"
+
+    coordinates_dict = {}
+
+    coordinates = []
+    for file in tqdm(range(1000)):
+        input_filename = "/data/PETScanner/data_new/input_files/input_mult_%d.det" % (file + 1)
+        lineList = [line.rstrip('\n') for line in open(input_filename)]
+
+        coordinates_for_this_input = {}
+        # GEN,MAT1,38.066XS,38.066XL,3.039YS,3.039YL,19.146ZS,19.146ZL
+        fates_file = ""
+        for line in lineList:
+            if line.startswith('GEN,MAT1,'):
+                z = re.match(m, line)
+                g = z.groups()
+                x = float(g[0])
+                y = float(g[2])
+                z = float(g[4])
+            if line.startswith('FATES'):
+                fates_file = line
+            if line.startswith('RUN'):
+                coordinates.append((x, y, z))
+                coordinates_for_this_input[fates_file] = (x, y, z)
+        coordinates_dict[file] = coordinates_for_this_input
+
+    coordinates = np.asarray(coordinates, dtype=np.float32)
+
+    plt.scatter(coordinates[:, 0], coordinates[:, 2], marker='^', s=1)
+    plt.show()
+
     for file in tqdm(range(1000)):
         for i in range(200):
-            fates_filename = "/data/stpidhorskyi/Detect2000/%d/FATES%s" % (file + 1, "" if i == 0 else str(i))
+            fates_filename = "/data/PETScanner/data_new/%d/FATES%s" % (file + 1, "" if i == 0 else str(i))
             lineList = [line.rstrip('\n') for line in open(fates_filename)]
             data = []
             for line in lineList:
@@ -50,13 +82,15 @@ def main():
             max_ang = 7
 
             if not correct:
-                plt.hist(phi, bins_edges)
-                plt.show()
-
-                plt.scatter(x_data, y_data, marker='^', s=1)
-                plt.scatter(40 * np.cos(bins_edges), 40 * np.sin(bins_edges), marker='o', s=3)
-                plt.axis('equal')
-                plt.show()
+                continue
+            # if not correct:
+            #     plt.hist(phi, bins_edges)
+            #     plt.show()
+            #
+            #     plt.scatter(x_data, y_data, marker='^', s=1)
+            #     plt.scatter(40 * np.cos(bins_edges), 40 * np.sin(bins_edges), marker='o', s=3)
+            #     plt.axis('equal')
+            #     plt.show()
 
             x_0, y_0 = rotate(x_data[ang_ind == max_ang], y_data[ang_ind == max_ang], rot_angle[max_ang])
             z_0 = z_data[ang_ind == max_ang]
@@ -84,9 +118,12 @@ def main():
 
             img, xedges, yedges = np.histogram2d(y_fit, z_fit, [12, 16], [[-27.375, 27.375], [-36.1, -36.1 + 16 * y_pitch]])
 
-            images.append((img, file, i))
+            # plt.imshow(img)
+            # plt.show()
+            x, y, z = coordinates_dict[file]["FATES%s" % ("" if i == 0 else str(i))]
+            images.append((img, np.asarray([x, y, z], dtype=np.float32)))
 
-    with open('data.pkl', 'wb') as pkl:
+    with open('/data/PETScanner/data_new/data.pkl', 'wb') as pkl:
         pickle.dump(images, pkl)
 
 

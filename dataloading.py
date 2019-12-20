@@ -7,7 +7,8 @@ def process(batch):
     x = [x[0] for x in batch]
     y = [x[1] for x in batch]
     x = np.asarray(x)
-    x = np.pad(x, ((0, 0), (0, 0), (0, 3)), mode='constant')
+    #x = np.pad(x, ((0, 0), (0, 0), (0, 3)), mode='constant')
+    x = np.pad(x, ((0, 0), (0, 4), (0, 0)), mode='constant')
     x = torch.tensor(x, dtype=torch.float32)
     y = torch.tensor(y, dtype=torch.float32)
     return x, y
