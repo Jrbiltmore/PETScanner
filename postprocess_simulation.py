@@ -116,7 +116,7 @@ def main():
                 plt.scatter(y_fit, z_fit, marker='^', s=1)
                 plt.show()
 
-            img, xedges, yedges = np.histogram2d(y_fit, z_fit, [12, 16], [[-27.375, 27.375], [-36.1, -36.1 + 16 * y_pitch]])
+            img, xedges, yedges = np.histogram2d(y_fit, z_fit, [12, 16], [[-27.375, 27.375], [-36.1, -36.1 + 16 * z_pitch]])
 
             # plt.imshow(img)
             # plt.show()
