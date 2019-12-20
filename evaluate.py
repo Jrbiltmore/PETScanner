@@ -136,8 +136,6 @@ def evaluate(cfg, logger):
     logger.info("The mean errors on all coordinates: %s" % str(errors.mean(0)))
     logger.info("The standard deviations on all coordinates: %s" % str(errors.std(0)))
 
-    logger.info("--------------Validation %s Set Results--------------" % cfg.NAME)
-
     logger.info("****Total Error Stats****")
     logger.info("Mean of the total error: %f" % total_errors.mean())
     logger.info("Standard Deviation of the total error: %f" % total_errors.std())
@@ -153,26 +151,26 @@ def evaluate(cfg, logger):
 
     # print("Total error distribution")
     ax = sns.distplot(total_errors)
-    axis_title = ax.set(title='Validation %s Distribution of Total Error' % cfg.NAME)
+    axis_title = ax.set(title='Distribution of Total Error')
     ax.set(xlabel='Normal Distribution M=' + str(total_errors.mean()) + ' SD=' + str(total_errors.std()),
            ylabel='Frequency')
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, str(axis_title[0]).split("'")[-2]))
     plt.show()
 
     ax = sns.distplot(errors_x)
-    axis_title = ax.set(title='Validation %s Distribution of X-Coordinate Errors' % cfg.NAME)
+    axis_title = ax.set(title='Distribution of X-Coordinate Errors')
     ax.set(xlabel='Normal Distribution M=' + str(errors_x.mean()) + ' SD=' + str(errors_x.std()), ylabel='Frequency')
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, str(axis_title[0]).split("'")[-2]))
     plt.show()
 
     ax = sns.distplot(errors_y)
-    axis_title = ax.set(title='Validation %s Distribution of Y-Coordinate Errors' % cfg.NAME)
+    axis_title = ax.set(title='Distribution of Y-Coordinate Errors')
     ax.set(xlabel='Normal Distribution M=' + str(errors_y.mean()) + ' SD=' + str(errors_y.std()), ylabel='Frequency')
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, str(axis_title[0]).split("'")[-2]))
     plt.show()
 
     ax = sns.distplot(errors_z)
-    axis_title = ax.set(title='Validation %s Distribution of Z-Coordinate Errors' % cfg.NAME)
+    axis_title = ax.set(title='Distribution of Z-Coordinate Errors')
     ax.set(xlabel='Normal Distribution M=' + str(errors_z.mean()) + ' SD=' + str(errors_z.std()), ylabel='Frequency')
     plt.savefig(os.path.join(cfg.OUTPUT_DIR, str(axis_title[0]).split("'")[-2]))
     plt.show()
