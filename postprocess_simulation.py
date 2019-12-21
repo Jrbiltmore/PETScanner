@@ -51,7 +51,7 @@ def main():
     plt.scatter(coordinates[:, 0], coordinates[:, 2], marker='^', s=1)
     plt.show()
 
-    for file in tqdm(range(1000)):
+    for file in tqdm(range(1000 - 1)):
         for i in range(200):
             fates_filename = "/data/PETScanner/data_new/%d/FATES%s" % (file + 1, "" if i == 0 else str(i))
             lineList = [line.rstrip('\n') for line in open(fates_filename)]
