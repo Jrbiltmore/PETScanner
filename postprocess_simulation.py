@@ -5,127 +5,95 @@ import pickle
 from tqdm import tqdm
 import re
 
-
-def rotate(x, y, a):
-    return x * np.cos(a) - y * np.sin(a), x * np.sin(a) + y * np.cos(a)
-
+def rotate(x, y, angle):
+    return x * np.cos(angle) - y * np.sin(angle), x * np.sin(angle) + y * np.cos(angle)
 
 def main():
     y_pitch = 4.5625
     z_pitch = 4.5625
 
-    rot_angle = (-1.) * np.pi * np.array(range(14)) / 7. + np.pi
+    rot_angles = (-1.) * np.pi * np.arange(14) / 7. + np.pi
 
-    bins_edges = -np.pi + np.pi / 7. * np.array(range(15)) - np.pi / 14
+    bins_edges = -np.pi + np.pi / 7. * np.arange(15) - np.pi / 14
 
     images = []
-
-    m = r"GEN,MAT1,(-*\d*.\d*)XS,(-*\d*.\d*)XL,(-*\d*.\d*)YS,(-*\d*.\d*)YL,(-*\d*.\d*)ZS,(-*\d*.\d*)ZL"
-
     coordinates_dict = {}
-
     coordinates = []
-    for file in tqdm(range(1000)):
-        input_filename = "/data/PETScanner/data_new/input_files/input_mult_%d.det" % (file + 1)
-        lineList = [line.rstrip('\n') for line in open(input_filename)]
 
-        coordinates_for_this_input = {}
-        # GEN,MAT1,38.066XS,38.066XL,3.039YS,3.039YL,19.146ZS,19.146ZL
-        fates_file = ""
-        for line in lineList:
-            if line.startswith('GEN,MAT1,'):
-                z = re.match(m, line)
-                g = z.groups()
-                x = float(g[0])
-                y = float(g[2])
-                z = float(g[4])
-            if line.startswith('FATES'):
-                fates_file = line
-            if line.startswith('RUN'):
-                coordinates.append((x, y, z))
-                coordinates_for_this_input[fates_file] = (x, y, z)
-        coordinates_dict[file] = coordinates_for_this_input
+    for file_num in tqdm(range(1, 1001)):
+        input_filename = f"/data/PETScanner/data_new/input_files/input_mult_{file_num}.det"
+        with open(input_filename, 'r') as file:
+            for line in file:
+                if line.startswith('GEN,MAT1,'):
+                    match = re.match(r"GEN,MAT1,(-*\d*.\d*)XS,(-*\d*.\d*)XL,(-*\d*.\d*)YS,(-*\d*.\d*)YL,(-*\d*.\d*)ZS,(-*\d*.\d*)ZL", line)
+                    if match:
+                        x, y, z = map(float, match.groups())
+                        coordinates.append((x, y, z))
+                        coordinates_dict.setdefault(file_num, {})[line.strip()] = (x, y, z)
 
     coordinates = np.asarray(coordinates, dtype=np.float32)
 
     plt.scatter(coordinates[:, 0], coordinates[:, 2], marker='^', s=1)
     plt.show()
 
-    for file in tqdm(range(1000 - 1)):
+    for file_num in tqdm(range(1, 1000)):
         for i in range(200):
-            fates_filename = "/data/PETScanner/data_new/%d/FATES%s" % (file + 1, "" if i == 0 else str(i))
-            lineList = [line.rstrip('\n') for line in open(fates_filename)]
-            data = []
-            for line in lineList:
-                if line == '':
+            fates_filename = f"/data/PETScanner/data_new/{file_num}/FATES{''.join([str(i)] if i != 0 else [])}"
+            with open(fates_filename, 'r') as file:
+                data = []
+                for line in file:
+                    if line.strip() == '':
+                        continue
+                    results = line.split()
+                    fate = int(results[0])
+                    if fate == 1:
+                        x_data, y_data, z_data = map(float, results[8:11])
+                        data.append([x_data, y_data, z_data])
+
+                data = np.array(data)
+
+                phi = np.arctan2(data[:, 1], data[:, 0])
+                phi[phi < bins_edges[0]] += 2 * np.pi
+
+                r = np.sqrt(data[:, 0] ** 2 + data[:, 1] ** 2 + data[:, 2] ** 2)
+
+                ang_ind = np.digitize(phi, bins_edges) - 1
+                h, _ = np.histogram(phi, bins_edges)
+                max_ang = np.argmax(h)
+
+                correct = max_ang == 7
+
+                if not correct:
                     continue
-                results = line.split()
-                fate = int(results[0])
-                if fate == 1:
-                    x_data, y_data, z_data = map(float, [results[8], results[9], results[10]])
-                    data.append([x_data, y_data, z_data])
 
-            data = np.stack(data)
+                x_0, y_0 = rotate(data[ang_ind == max_ang, 0], data[ang_ind == max_ang, 1], rot_angles[max_ang])
+                z_0 = data[ang_ind == max_ang, 2]
 
-            x_data, y_data, z_data = data[:, 0], data[:, 1], data[:, 2]
+                one_down = (14 + max_ang - 1) % 14
+                shift = 38.997 * math.tan(math.pi / 14) * 2
 
-            phi = np.arctan2(y_data, x_data)
-            phi[phi < bins_edges[0]] += 2 * np.pi
+                x_down, y_down = rotate(data[ang_ind == one_down, 0], data[ang_ind == one_down, 1], rot_angles[one_down])
+                z_down = data[ang_ind == one_down, 2]
+                y_down -= shift
 
-            r = np.sqrt(x_data ** 2 + y_data ** 2 + z_data ** 2)
+                one_up = (14 + max_ang + 1) % 14
 
-            ang_ind = np.digitize(phi, bins_edges) - 1
-            h, _ = np.histogram(phi, bins_edges)
-            max_ang = np.argmax(h)
+                x_up, y_up = rotate(data[ang_ind == one_up, 0], data[ang_ind == one_up, 1], rot_angles[one_up])
+                z_up = data[ang_ind == one_up, 2]
+                y_up += shift
 
-            correct = max_ang == 7
-            max_ang = 7
+                y_fit = np.concatenate([y_down, y_0, y_up])
+                z_fit = np.concatenate([z_down, z_0, z_up])
 
-            if not correct:
-                continue
-            # if not correct:
-            #     plt.hist(phi, bins_edges)
-            #     plt.show()
-            #
-            #     plt.scatter(x_data, y_data, marker='^', s=1)
-            #     plt.scatter(40 * np.cos(bins_edges), 40 * np.sin(bins_edges), marker='o', s=3)
-            #     plt.axis('equal')
-            #     plt.show()
+                if not correct:
+                    plt.scatter(y_fit, z_fit, marker='^', s=1)
+                    plt.show()
 
-            x_0, y_0 = rotate(x_data[ang_ind == max_ang], y_data[ang_ind == max_ang], rot_angle[max_ang])
-            z_0 = z_data[ang_ind == max_ang]
-
-            one_down = (14 + max_ang - 1) % 14
-            shift = 9.12335829*2.
-            shift = 38.997 * math.tan(math.pi/14) * 2
-
-            x_down, y_down = rotate(x_data[ang_ind == one_down], y_data[ang_ind == one_down], rot_angle[one_down])
-            z_down = z_data[ang_ind == one_down]
-            y_down -= shift
-
-            one_up = (14 + max_ang + 1) % 14
-
-            x_up, y_up = rotate(x_data[ang_ind == one_up], y_data[ang_ind == one_up], rot_angle[one_up])
-            z_up = z_data[ang_ind == one_up]
-            y_up += shift
-
-            y_fit = np.concatenate([y_down, y_0, y_up])
-            z_fit = np.concatenate([z_down, z_0, z_up])
-
-            if not correct:
-                plt.scatter(y_fit, z_fit, marker='^', s=1)
-                plt.show()
-
-            img, xedges, yedges = np.histogram2d(y_fit, z_fit, [12, 16], [[-27.375, 27.375], [-36.1, -36.1 + 16 * z_pitch]])
-
-            # plt.imshow(img)
-            # plt.show()
-            x, y, z = coordinates_dict[file]["FATES%s" % ("" if i == 0 else str(i))]
-            images.append((img, np.asarray([x, y, z], dtype=np.float32)))
+                img, _, _ = np.histogram2d(y_fit, z_fit, [12, 16], [[-27.375, 27.375], [-36.1, -36.1 + 16 * z_pitch]])
+                images.append((img, coordinates_dict[file_num]["FATES{}".format('' if i == 0 else str(i))]))
 
     with open('/data/PETScanner/data_new/data.pkl', 'wb') as pkl:
         pickle.dump(images, pkl)
-
 
 if __name__ == "__main__":
     main()
